@@ -1,16 +1,53 @@
-# React + Vite
+# **Docify**
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**Docify** is a generative AI-powered project designed to help create academic reports and structured content from text prompts. It is currently in a **beta stage**, intended for research and learning purposes rather than production use.
 
-Currently, two official plugins are available:
+## 🚀 About
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+**Docify** is an AI report generator that processes user prompts and produces coherent academic-style outputs. Built with React and Vite, it provides a modern interface for interacting with an AI backend. This project emphasizes **learning, experimentation, and academic exploration**.
 
-## React Compiler
+## 📌 Features (Beta)
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+* 🔹 **AI-Powered Report Generation** — Generate academic text based on user prompts.
+* 🔹 **Structured Outputs** — Outputs designed for clarity and readability.
+* 🔹 **Experimental Frontend** — React + Vite interface for prompt input and output display.
+* 🔹 **Academic-Focused** — Primarily intended for educational and research use.
 
-## Expanding the ESLint configuration
+> ⚠️ Features are in **beta**. Expect limited functionality and occasional inconsistencies.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## 🛠️ Tech Stack
+
+| Technology                   |
+| ---------------------------- |
+| React                        |
+| Vite                         |
+| CSS / UI framework           |
+| AI API                       |
+| TypeScript                   |
+
+## 🧠 How It Works
+
+1. User enters an academic prompt.
+2. The AI backend processes the prompt using generative models.
+3. Generated text is returned to the frontend interface.
+4. Output is displayed for review and academic use.
+
+> The AI can generate summaries, reports, or structured text but is **meant for academic exploration only**.
+
+## 🧪 Example
+
+**Prompt:**
+
+> Generate a short academic introduction on the impact of AI in education.
+
+**Expected Output:**
+
+> “Artificial Intelligence (AI) is increasingly transforming educational practices. By automating administrative tasks, providing personalized learning paths, and supporting intelligent tutoring systems, AI enhances both teaching and learning experiences…”
+
+*(Example output demonstrates beta-level capabilities.)*
+
+## 📜 License
+
+This project is licensed under the **MIT License**.
+
+---
