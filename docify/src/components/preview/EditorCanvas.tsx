@@ -1,9 +1,9 @@
 import { motion } from 'framer-motion';
 import { useState, useRef, useCallback, useEffect } from 'react';
-import { 
-  Download, 
-  Copy, 
-  Share2, 
+import {
+  Download,
+  Copy,
+  Share2,
   MoreHorizontal,
   Type,
   Image,
@@ -63,9 +63,9 @@ const contentToHtml = (content: string): string => {
 };
 
 export const EditorCanvas = () => {
-  const { 
-    generatedDocument, 
-    setGeneratedDocument, 
+  const {
+    generatedDocument,
+    setGeneratedDocument,
     resetInput,
     editorSettings,
     updateEditorSettings,
@@ -90,14 +90,15 @@ export const EditorCanvas = () => {
     if (documentIdRef.current !== docId) {
       documentIdRef.current = docId;
       setIsInitialized(false);
-      
+
       // Set content after a tick to ensure refs are ready
       requestAnimationFrame(() => {
         if (titleRef.current) {
           titleRef.current.innerText = generatedDocument.title;
         }
         if (contentRef.current) {
-          contentRef.current.innerHTML = contentToHtml(generatedDocument.content);
+          // Content from the backend is already HTML — set it directly
+          contentRef.current.innerHTML = generatedDocument.content;
         }
         setIsInitialized(true);
       });
@@ -118,17 +119,17 @@ export const EditorCanvas = () => {
 
   const handleContentChange = useCallback(() => {
     if (!contentRef.current || !generatedDocument) return;
-    
+
     const elements = contentRef.current.children;
     const newContentParts: string[] = [];
-    
+
     Array.from(elements).forEach((el) => {
       const text = el.textContent?.trim() || '';
       if (!text) {
         newContentParts.push('');
         return;
       }
-      
+
       if (el.tagName === 'H2') {
         newContentParts.push(`## ${text}`);
       } else if (el.tagName === 'H3') {
@@ -141,7 +142,7 @@ export const EditorCanvas = () => {
         newContentParts.push(text);
       }
     });
-    
+
     const newContent = newContentParts.join('\n');
     if (newContent !== generatedDocument.content) {
       setGeneratedDocument({
@@ -160,7 +161,7 @@ export const EditorCanvas = () => {
   const handleRegenerateSelected = async () => {
     const selection = window.getSelection();
     const selectedText = selection?.toString().trim();
-    
+
     if (!selectedText) {
       toast.error('Please select some text to regenerate');
       return;
@@ -168,7 +169,7 @@ export const EditorCanvas = () => {
 
     setIsRegenerating(true);
     toast.info('Regenerating selected content...');
-    
+
     // Simulate AI regeneration (replace with actual API call)
     setTimeout(() => {
       const regeneratedText = `[Regenerated] ${selectedText}`;
@@ -182,7 +183,7 @@ export const EditorCanvas = () => {
   // Helper to get plain text content from a node, preserving structure but removing style spans
   const getTextContentPreservingStructure = (node: Node): DocumentFragment => {
     const fragment = document.createDocumentFragment();
-    
+
     const processNode = (n: Node, parent: Node) => {
       if (n.nodeType === Node.TEXT_NODE) {
         parent.appendChild(document.createTextNode(n.textContent || ''));
@@ -206,7 +207,7 @@ export const EditorCanvas = () => {
         }
       }
     };
-    
+
     node.childNodes.forEach(child => processNode(child, fragment));
     return fragment;
   };
@@ -218,30 +219,30 @@ export const EditorCanvas = () => {
     }
 
     const range = selection.getRangeAt(0);
-    
+
     // Extract content
     const extractedContent = range.extractContents();
-    
+
     // Create a temp container to process
     const tempDiv = document.createElement('div');
     tempDiv.appendChild(extractedContent);
-    
+
     // Get flattened content (removing existing style spans)
     const cleanContent = getTextContentPreservingStructure(tempDiv);
-    
+
     // Wrap in a new span with the desired style
     const span = document.createElement('span');
     span.style[styleProp] = value;
     span.appendChild(cleanContent);
-    
+
     range.insertNode(span);
-    
+
     // Restore selection
     selection.removeAllRanges();
     const newRange = document.createRange();
     newRange.selectNodeContents(span);
     selection.addRange(newRange);
-    
+
     contentRef.current?.focus();
     return true;
   };
@@ -275,8 +276,8 @@ export const EditorCanvas = () => {
     return Math.max(1, Math.ceil(charCount / 3000));
   }, [generatedDocument]);
 
-  const effectivePageCount = activeMode === 'reformatter' 
-    ? calculatePagesFromContent() 
+  const effectivePageCount = activeMode === 'reformatter'
+    ? calculatePagesFromContent()
     : editorSettings.pageCount;
 
   if (!generatedDocument) return null;
@@ -287,14 +288,31 @@ export const EditorCanvas = () => {
   };
 
   const handleDownload = () => {
-    const blob = new Blob([generatedDocument.content], { type: 'text/markdown' });
+    // Wrap the HTML content in a full HTML document for portability
+    const htmlDoc = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>${generatedDocument.title}</title>
+  <style>
+    body { font-family: '${editorSettings.fontFamily}', sans-serif; font-size: ${editorSettings.fontSize}px; max-width: 800px; margin: 40px auto; padding: 0 24px; color: #1e293b; line-height: 1.75; }
+    h1, h2, h3 { color: #0f172a; } ul, ol { padding-left: 1.5em; } hr { border: none; border-top: 1px solid #e2e8f0; margin: 2em 0; }
+  </style>
+</head>
+<body>
+  <h1>${generatedDocument.title}</h1>
+  ${generatedDocument.content}
+</body>
+</html>`;
+    const blob = new Blob([htmlDoc], { type: 'text/html' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `${generatedDocument.title.toLowerCase().replace(/\s+/g, '-')}.md`;
+    a.download = `${generatedDocument.title.toLowerCase().replace(/\s+/g, '-')}.html`;
     a.click();
     URL.revokeObjectURL(url);
-    toast.success('Document downloaded');
+    toast.success('Document downloaded as HTML');
   };
 
   const handleNewDocument = () => {
@@ -620,11 +638,11 @@ export const EditorCanvas = () => {
                 </div>
 
                 {/* Page content */}
-                <div 
+                <div
                   className="p-12 lg:p-16"
                   style={{ minHeight: `${A4_HEIGHT_PX - 60}px` }}
                 >
-                {pageIndex === 0 ? (
+                  {pageIndex === 0 ? (
                     <>
                       {/* Document title - First page only */}
                       <div className="mb-8 border-b border-border/30 pb-8">
@@ -647,7 +665,7 @@ export const EditorCanvas = () => {
                         onBlur={handleContentChange}
                         className="prose prose-lg prose-slate max-w-none outline-none focus:ring-2 focus:ring-primary/20 rounded-lg cursor-text [&>*]:outline-none"
                         spellCheck={false}
-                        style={{ 
+                        style={{
                           fontFamily: editorSettings.fontFamily,
                           fontSize: `${editorSettings.fontSize}px`,
                           lineHeight: '1.75',
@@ -660,7 +678,7 @@ export const EditorCanvas = () => {
                       suppressContentEditableWarning
                       className="prose prose-lg prose-slate max-w-none outline-none focus:ring-2 focus:ring-primary/20 rounded-lg cursor-text [&>*]:outline-none min-h-[200px]"
                       spellCheck={false}
-                      style={{ 
+                      style={{
                         fontFamily: editorSettings.fontFamily,
                         fontSize: `${editorSettings.fontSize}px`,
                         lineHeight: '1.75',

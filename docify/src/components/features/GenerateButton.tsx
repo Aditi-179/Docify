@@ -2,14 +2,15 @@ import { motion } from 'framer-motion';
 import { Sparkles, Loader2 } from 'lucide-react';
 import { useDocumentStore } from '@/store/documentStore';
 import { generateDocument } from '@/services/documentService';
+import { toast } from 'sonner';
 
 export const GenerateButton = () => {
-  const { 
-    activeMode, 
-    input, 
-    isGenerating, 
+  const {
+    activeMode,
+    input,
+    isGenerating,
     setIsGenerating,
-    setGeneratedDocument 
+    setGeneratedDocument
   } = useDocumentStore();
 
   const isInputValid = () => {
@@ -29,13 +30,15 @@ export const GenerateButton = () => {
 
   const handleGenerate = async () => {
     if (!isInputValid() || isGenerating) return;
-    
+
     setIsGenerating(true);
     try {
       const document = await generateDocument(input);
       setGeneratedDocument(document);
     } catch (error) {
       console.error('Generation failed:', error);
+      const message = error instanceof Error ? error.message : 'Document generation failed. Please try again.';
+      toast.error(message);
     } finally {
       setIsGenerating(false);
     }
